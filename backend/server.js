@@ -38,6 +38,7 @@ app.get('/', (req, res) => res.send('Lead API'));
 app.get('/api/health', (req, res) => {
   res.status(200).json({ message: 'Server is running', timestamp: new Date().toISOString() });
 });
+app.get('/favicon.ico', (req, res) => res.status(204).end());
 
 app.use('*', (req, res) => {
   res.status(404).json({ message: 'Route not found' });
