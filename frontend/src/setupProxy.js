@@ -4,7 +4,7 @@ module.exports = function(app) {
   app.use(
     '/api',
     createProxyMiddleware({
-      target: /* 'http://localhost:5000' */'leadmanagementsystem-production.up.railway.app',
+      target: 'https://leadmanagementsystem-production.up.railway.app',
       changeOrigin: true,
       secure: false,
       onProxyReq: function(proxyReq, req, res) {
