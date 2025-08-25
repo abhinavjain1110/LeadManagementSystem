@@ -14,6 +14,11 @@ const buildFilterQuery = (filters) => {
   
   if (!filters) return query;
 
+  // Support passthrough of $or for flexible search (e.g., regex across fields)
+  if (Array.isArray(filters.$or) && filters.$or.length > 0) {
+    query.$or = filters.$or;
+  }
+
   // String fields with contains/equals
   ['email', 'company', 'city', 'state', 'first_name', 'last_name'].forEach(field => {
     if (filters[field]) {

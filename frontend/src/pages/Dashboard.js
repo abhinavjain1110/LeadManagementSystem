@@ -153,7 +153,7 @@ const Dashboard = () => {
         <div className="flex space-x-2">
           <button
             onClick={() => handleView(params.data)}
-            className="p-1 text-blue-600 hover:text-blue-800"
+            className="p-1 text-primary-600 hover:text-primary-800"
             title="View"
           >
             <Eye className="h-4 w-4" />
@@ -217,7 +217,7 @@ const Dashboard = () => {
   }, [fetchLeads]);
 
   // Handle search
-  const handleSearch = (e) => {
+  /* const handleSearch = (e) => {
     e.preventDefault();
     if (searchTerm.trim()) {
       setFilters(prev => ({
@@ -231,7 +231,25 @@ const Dashboard = () => {
       setFilters({});
     }
     setPagination(prev => ({ ...prev, page: 1 }));
+  }; */
+  const handleSearch = (e) => {
+    e.preventDefault();
+    const term = searchTerm.trim();
+    if (term) {
+      setFilters({
+        $or: [
+          { email: { $regex: term, $options: 'i' } },
+          { first_name: { $regex: term, $options: 'i' } },
+          { last_name: { $regex: term, $options: 'i' } },
+          { company: { $regex: term, $options: 'i' } }
+        ]
+      });
+    } else {
+      setFilters({});
+    }
+    setPagination(prev => ({ ...prev, page: 1 }));
   };
+
 
   // Handle pagination
   const handlePageChange = (newPage) => {
