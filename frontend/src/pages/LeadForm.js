@@ -5,6 +5,13 @@ import { ArrowLeft, Save, User, Mail, Phone, Building, MapPin, Target, TrendingU
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
+// Configure axios with backend base URL
+const api = axios.create({
+  baseURL: process.env.REACT_APP_API_URL || 'https://leadmanagementsystem-production.up.railway.app',
+  withCredentials: true,
+  timeout: 10000,
+});
+
 const LeadForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -48,7 +55,7 @@ const LeadForm = () => {
 
   const fetchLead = async () => {
     try {
-      const response = await axios.get(`/api/leads/${id}`);
+      const response = await api.get(`/api/leads/${id}`);
       const lead = response.data.lead;
       
       // Set form values
@@ -74,10 +81,10 @@ const LeadForm = () => {
       is_qualified: !!data.is_qualified // convert to true/false
     };
       if (isEditMode) {
-        await axios.put(`/api/leads/${id}`, data);
+        await api.put(`/api/leads/${id}`, data);
         toast.success('Lead updated successfully');
       } else {
-        await axios.post('/api/leads', data);
+        await api.post('/api/leads', data);
         toast.success('Lead created successfully');
       }
       

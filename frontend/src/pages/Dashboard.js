@@ -6,6 +6,13 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import { format, isValid, parseISO } from 'date-fns';
 
+// Configure axios with backend base URL
+const api = axios.create({
+  baseURL: process.env.REACT_APP_API_URL || 'https://leadmanagementsystem-production.up.railway.app',
+  withCredentials: true,
+  timeout: 10000,
+});
+
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 
@@ -183,7 +190,7 @@ const Dashboard = () => {
     flex: 1,
     minWidth: 100,
     resizable: true,
-    suppressMenu: true
+    suppressHeaderMenuButton: true
   }), []);
 
   // Fetch leads
@@ -196,7 +203,7 @@ const Dashboard = () => {
         ...(Object.keys(filters).length > 0 && { filters: JSON.stringify(filters) })
       });
 
-      const response = await axios.get(`/api/leads?${params}`);
+      const response = await api.get(`/api/leads?${params}`);
       setLeads(response.data.data);
       setPagination({
         page: response.data.page,
@@ -269,7 +276,7 @@ const Dashboard = () => {
   const handleDelete = async (lead) => {
     if (window.confirm(`Are you sure you want to delete ${lead.first_name} ${lead.last_name}?`)) {
       try {
-        await axios.delete(`/api/leads/${lead._id}`);
+        await api.delete(`/api/leads/${lead._id}`);
         toast.success('Lead deleted successfully');
         fetchLeads();
       } catch (error) {
@@ -317,7 +324,7 @@ const Dashboard = () => {
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Qualified</p>
               <p className="text-2xl font-bold text-gray-900">
-                {leads.filter(lead => lead.is_qualified).length}
+                {leads?.filter(lead => lead.is_qualified)?.length || 0}
               </p>
             </div>
           </div>
@@ -330,7 +337,7 @@ const Dashboard = () => {
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">New</p>
               <p className="text-2xl font-bold text-gray-900">
-                {leads.filter(lead => lead.status === 'new').length}
+                {leads?.filter(lead => lead.status === 'new')?.length || 0}
               </p>
             </div>
           </div>
@@ -343,7 +350,7 @@ const Dashboard = () => {
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Total Value</p>
               <p className="text-2xl font-bold text-gray-900">
-                ${leads.reduce((sum, lead) => sum + (lead.lead_value || 0), 0).toLocaleString()}
+                ${leads?.reduce((sum, lead) => sum + (lead.lead_value || 0), 0)?.toLocaleString() || '0'}
               </p>
             </div>
           </div>
@@ -378,7 +385,7 @@ const Dashboard = () => {
       <div className="card">
         <div className="ag-theme-alpine w-full h-96">
           <AgGridReact
-            rowData={leads}
+            rowData={leads || []}
             columnDefs={columnDefs}
             defaultColDef={defaultColDef}
             pagination={false}
