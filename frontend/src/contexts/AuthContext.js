@@ -121,9 +121,12 @@ export const AuthProvider = ({ children }) => {
   // Add request interceptor for debugging
   api.interceptors.request.use(
     (config) => {
-      if (process.env.NODE_ENV === 'development') {
-        console.log('API Request:', config.method?.toUpperCase(), config.url);
-      }
+      console.log('API Request:', config.method?.toUpperCase(), config.url);
+      console.log('Request config:', {
+        baseURL: config.baseURL,
+        withCredentials: config.withCredentials,
+        headers: config.headers
+      });
       return config;
     },
     (error) => {
@@ -135,9 +138,12 @@ export const AuthProvider = ({ children }) => {
   api.interceptors.response.use(
     (response) => response,
     (error) => {
-      if (process.env.NODE_ENV === 'development') {
-        console.error('API Error:', error.response?.status, error.response?.data);
-      }
+      console.error('API Error:', error.response?.status, error.response?.data);
+      console.error('Error details:', {
+        message: error.message,
+        config: error.config,
+        response: error.response
+      });
       return Promise.reject(error);
     }
   );

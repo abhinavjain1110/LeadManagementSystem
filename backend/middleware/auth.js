@@ -3,9 +3,14 @@ const User = require('../models/User');
 
 const auth = async (req, res, next) => {
   try {
+    // Debug: Log all cookies
+    console.log('All cookies:', req.cookies);
+    console.log('Headers:', req.headers);
+    
     const token = req.cookies.token;
 
     if (!token) {
+      console.log('No token found in cookies');
       return res.status(401).json({ message: 'Access denied. No token provided.' });
     }
 

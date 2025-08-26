@@ -53,13 +53,16 @@ router.post('/register', [
     // Generate token
     const token = user.generateToken();
 
-    // Set httpOnly cookie
-    res.cookie('token', token, {
+    // Set httpOnly cookie with proper configuration
+    const cookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'none',
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-    });
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: '/'
+    };
+
+    res.cookie('token', token, cookieOptions);
 
     res.status(201).json({
       message: 'User registered successfully',
@@ -112,13 +115,16 @@ router.post('/login', [
     // Generate token
     const token = user.generateToken();
 
-    // Set httpOnly cookie
-    res.cookie('token', token, {
+    // Set httpOnly cookie with proper configuration
+    const cookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'none',
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-    });
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: '/'
+    };
+
+    res.cookie('token', token, cookieOptions);
 
     res.status(200).json({
       message: 'Login successful',
@@ -137,12 +143,14 @@ router.post('/login', [
 
 // Logout user
 router.post('/logout', (req, res) => {
-  res.clearCookie('token', {
+  const cookieOptions = {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'none'
-  });
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    path: '/'
+  };
   
+  res.clearCookie('token', cookieOptions);
   res.status(200).json({ message: 'Logged out successfully' });
 });
 

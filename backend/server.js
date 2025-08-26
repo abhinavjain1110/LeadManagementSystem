@@ -92,31 +92,12 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// CORS configuration
-const allowedOrigins = [
-  'http://localhost:3000', // local dev
-  'https://lead-management-system-two.vercel.app', // frontend Vercel
-  'https://lead-management-system.vercel.app', // alternative Vercel URL
-  process.env.FRONTEND_URL // from environment variable
-].filter(Boolean); // remove undefined values
-
+// CORS configuration - more permissive for debugging
 app.use(cors({
-  origin: function(origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      return callback(null, true);
-    }
-    
-    // Log blocked origins for debugging
-    console.log('CORS blocked origin:', origin);
-    const msg = `CORS policy: The origin ${origin} is not allowed`;
-    return callback(new Error(msg), false);
-  },
+  origin: true, // Allow all origins for now
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Cookie']
 }));
 
 // Body parsers
@@ -132,7 +113,21 @@ app.use('/api/leads', leadRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.status(200).json({ message: 'Server is running', timestamp: new Date().toISOString() });
+  res.status(200).json({ 
+    message: 'Server is running', 
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV,
+    cors: 'enabled'
+  });
+});
+
+// Test endpoint for debugging
+app.get('/api/test-auth', auth, (req, res) => {
+  res.status(200).json({ 
+    message: 'Authentication working',
+    user: req.user,
+    cookies: req.cookies
+  });
 });
 
 // Favicon
