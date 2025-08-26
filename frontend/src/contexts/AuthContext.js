@@ -113,9 +113,34 @@ export const AuthProvider = ({ children }) => {
 
   // 👇 Configure axios with backend base URL
   const api = axios.create({
-    baseURL: process.env.REACT_APP_API_URL,
+    baseURL: process.env.REACT_APP_API_URL || 'https://leadmanagementsystem-production.up.railway.app',
     withCredentials: true,
+    timeout: 10000, // 10 second timeout
   });
+
+  // Add request interceptor for debugging
+  api.interceptors.request.use(
+    (config) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('API Request:', config.method?.toUpperCase(), config.url);
+      }
+      return config;
+    },
+    (error) => {
+      return Promise.reject(error);
+    }
+  );
+
+  // Add response interceptor for error handling
+  api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.error('API Error:', error.response?.status, error.response?.data);
+      }
+      return Promise.reject(error);
+    }
+  );
 
   useEffect(() => {
     checkAuth();

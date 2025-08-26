@@ -95,19 +95,28 @@ app.use(limiter);
 // CORS configuration
 const allowedOrigins = [
   'http://localhost:3000', // local dev
-  'https://lead-management-system-two.vercel.app' // frontend Vercel
-];
+  'https://lead-management-system-two.vercel.app', // frontend Vercel
+  'https://lead-management-system.vercel.app', // alternative Vercel URL
+  process.env.FRONTEND_URL // from environment variable
+].filter(Boolean); // remove undefined values
 
 app.use(cors({
   origin: function(origin, callback) {
-    if (!origin) return callback(null, true); // allow Postman or server-to-server requests
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = `CORS policy: The origin ${origin} is not allowed`;
-      return callback(new Error(msg), false);
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      return callback(null, true);
     }
-    return callback(null, true);
+    
+    // Log blocked origins for debugging
+    console.log('CORS blocked origin:', origin);
+    const msg = `CORS policy: The origin ${origin} is not allowed`;
+    return callback(new Error(msg), false);
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
 // Body parsers
